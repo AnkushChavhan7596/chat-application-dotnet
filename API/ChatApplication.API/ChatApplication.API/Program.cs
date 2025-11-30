@@ -1,4 +1,5 @@
 using ChatApplication.API.Data;
+using ChatApplication.API.Hubs;
 using ChatApplication.API.Middlewares;
 using ChatApplication.API.Models.Domain;
 using ChatApplication.API.Repositories;
@@ -21,7 +22,26 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnnectionStrings"));
 });
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnnectionStrings"));
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000") // React dev servers
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Required for SignalR + JWT
+    });
+});
+
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole>()
@@ -65,18 +85,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(options =>
-{
-    options.AllowAnyHeader();
-    options.AllowAnyOrigin();
-    options.AllowAnyMethod();
-});
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllers();
 

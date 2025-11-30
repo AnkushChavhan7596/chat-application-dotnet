@@ -110,7 +110,8 @@ namespace ChatApplication.API.Controllers
             {
                 Email = user.Email,
                 Roles = roles.ToList(),
-                Token = token
+                Token = token,
+                DisplayName = user.DisplayName
             });
         }
 
