@@ -11,6 +11,11 @@ App_Data/
 appsettings.Development.json
 appsettings.Local.json
 
+# Ignore sensitive config
+appsettings.json
+appsettings.Development.json
+appsettings.*.json
+
 # ---- REACT / NODE ----
 node_modules/
 dist/
