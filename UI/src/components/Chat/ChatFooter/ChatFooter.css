@@ -1,0 +1,49 @@
+/* chat footer */
+.footer{
+    position: absolute;
+    bottom: 55px;
+    left: 0;
+    width: 100%;
+    height: 55px;
+    background-color: rgb(255, 255, 255);
+}
+
+
+.type-box{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: 10px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-weight: 500;
+    padding-right: 145px;
+
+}
+
+.send-wrapper{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.send-wrapper img{
+    width: 20px;
+    height: 20px;
+}
+
+.send-btn{
+    padding: 7px 15px;
+    border-radius: 5px;
+    background-color: rgb(48, 162, 200);
+    color: white;
+    letter-spacing: 1px;
+    border:none;
+    outline: none;
+}
