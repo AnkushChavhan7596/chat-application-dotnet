@@ -37,9 +37,9 @@ namespace ChatApplication.API.Controllers
             };
 
             // store message to db and trigger signalR event
-            await _messageRepository.SendMessageAsync(message);
+            var savedMessage = await _messageRepository.SendMessageAsync(message);
 
-            return Ok(new { message = "Message sent" });
+            return Ok(savedMessage);
         }
 
         // GET : api/messages

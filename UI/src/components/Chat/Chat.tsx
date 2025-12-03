@@ -1,16 +1,31 @@
+import { useAppSelector } from "../../store/hooks"
 import "./Chat.css"
 import ChatBody from "./ChatBody/ChatBody"
-import ChatFooter from "./ChatFooter/ChatFooter"
 import ChatHeader from "./ChatHeader/ChatHeader"
 
 const Chat = () => {
+    const currentChat = useAppSelector((state) => state.chat.currentChat);
+
+    const isChatActive = currentChat && (currentChat?.targetUser && currentChat?.currentUser);
+
     return (
         <div className="chat">
-            {/* header */}
-            <ChatHeader />
+            {isChatActive &&
+                <>
+                    {/* header */}
+                    <ChatHeader />
 
-            {/* Chat body */}
-            <ChatBody />
+                    {/* Chat body */}
+                    <ChatBody />
+                </>
+            }
+
+            {
+                !isChatActive &&
+                <div className="start-conv">
+                    <p className="title">Start Conversation</p>
+                </div>
+            }
         </div>
     )
 }

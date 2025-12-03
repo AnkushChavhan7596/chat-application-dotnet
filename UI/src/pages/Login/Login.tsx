@@ -3,9 +3,14 @@ import React, { useState } from 'react';
 import "./Login.css";
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import { saveUserToLocal } from '../../utils/auth';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../store/slices/authSlice';
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +27,18 @@ const Login = () => {
 
     try {
       const result = await authService.login({ email, password });
-      localStorage.setItem("token", result.token);
+      // 1. save user to local
+      saveUserToLocal(result);
+
+      // 2. update redux state
+      dispatch(setUser({
+        id: result.id,
+        email: result.email,
+        displayName: result.displayName,
+        roles: result.roles,
+        token: result.token
+      }));
+
       // redirect to home
       navigate("/");
     } catch (err: any) {

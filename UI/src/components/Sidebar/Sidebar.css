@@ -16,6 +16,10 @@
     height: 55px
 }
 
+.green-text{
+    color: rgb(5, 189, 5) !important;
+}
+
 .header__title{
     font-size: 16px;
     font-weight: 700;
@@ -35,6 +39,7 @@
     max-height: 30px;
     border-radius: 50%;
     cursor: pointer;
+    object-fit: cover;
 }
 
 .header__profile h2{
@@ -109,6 +114,7 @@
     gap: 10px;
     padding: 7px 10px;
     border-bottom: .2px solid rgba(128, 128, 128, 0.269);
+    cursor: pointer;
 }
 
 .contact .profile{
@@ -121,6 +127,7 @@
     width: 45px;
     height: 45px;
     border-radius: 50%;
+    object-fit: cover;
 }
 
 .contact .info .username{
@@ -136,8 +143,18 @@
     margin-top: 2px;
 }
 
+.empty-warning{
+    text-align: center;
+    padding: 10px;
+    color: gray;
+    font-size: 14px;
+    letter-spacing: .3px;
+}
 
 @media screen and (max-width: 600px){
+    .hide-on-mobile {
+        display: none !important;
+    }
 
     .sidebar{
         min-width: 100%;

@@ -19,7 +19,8 @@ namespace ChatApplication.API.Repositories
         public string CreateJwtToken(ApplicationUser user, List<string> roles)
         {
             // Create claims
-            var claims = new List<Claim> { 
+            var claims = new List<Claim> {
+                new Claim(ClaimTypes.NameIdentifier, user.Id), // needed for singlaR identity
                 new Claim(ClaimTypes.Email, user.Email),
             };
 

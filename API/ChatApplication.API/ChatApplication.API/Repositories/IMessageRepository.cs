@@ -4,7 +4,7 @@ namespace ChatApplication.API.Repositories
 {
     public interface IMessageRepository
     {
-        public Task SendMessageAsync(Message message);
+        public Task<Message> SendMessageAsync(Message message);
 
         public Task<List<Message>> GetChatHistory(string currentUserId, string targetUserId);
     }

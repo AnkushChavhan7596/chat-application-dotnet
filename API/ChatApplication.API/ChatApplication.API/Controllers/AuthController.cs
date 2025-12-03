@@ -108,6 +108,7 @@ namespace ChatApplication.API.Controllers
 
             return Ok(new LoginResponseDto
             {
+                Id = user.Id,
                 Email = user.Email,
                 Roles = roles.ToList(),
                 Token = token,

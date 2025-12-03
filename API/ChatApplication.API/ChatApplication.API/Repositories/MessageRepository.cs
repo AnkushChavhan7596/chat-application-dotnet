@@ -31,7 +31,7 @@ namespace ChatApplication.API.Repositories
 
 
         // Send message
-        public async Task SendMessageAsync(Message message)
+        public async Task<Message> SendMessageAsync(Message message)
         {
             // storing message in db
             _db.Messages.Add(message);
@@ -47,6 +47,8 @@ namespace ChatApplication.API.Repositories
                     Text = message.Text,
                     SentAt = message.SentAt
                 });
+
+            return message;
         }
     }
 }

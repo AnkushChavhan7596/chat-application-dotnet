@@ -3,18 +3,27 @@
     background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
 }
 
+.start-conv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
 
-
-
-
-
-
-
+.start-conv .title{
+    font-size: 25px;
+    font-weight: 700;
+    color: rgb(160, 158, 158);
+}
 
 @media screen and (max-width: 600px){
 
     .chat{
         min-width: 100%;
+    }
+
+    .hide-after-back{
+        display: none;
     }
 
 }

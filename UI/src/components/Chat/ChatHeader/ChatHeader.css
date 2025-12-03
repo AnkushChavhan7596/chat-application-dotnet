@@ -4,10 +4,21 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    height: 55px;
+    /* height: 55px; */
     z-index: 1;
     background-color: rgba(197, 223, 201, 0.507);
     border-bottom: .2px solid rgba(128, 128, 128, 0.16);
+}
+
+.chat-header .left{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.arrow-left{
+    display: none;
+    cursor: pointer;
 }
 
 .chat-header .left h2{
@@ -24,4 +35,15 @@
 .chat-header .right img{
     width: 22px;
     height: 22px;
+}
+
+.status{
+    font-size: 12px;
+    letter-spacing: .4px;
+}
+
+@media screen and (max-width: 600px){
+    .arrow-left {
+        display: block;
+    }
 }

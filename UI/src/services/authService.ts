@@ -16,9 +16,11 @@ interface RegisterRequest {
 }
 
 interface LoginResponse {
-  email: string;
-  roles: string[];
-  token: string;
+    id: string,
+    email: string;
+    roles: string[];
+    token: string;
+    displayName: string
 }
 
 export const authService = {
