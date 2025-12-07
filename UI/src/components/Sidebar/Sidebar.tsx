@@ -120,6 +120,12 @@ const Sidebar = ({ loadUser }: any) => {
 
             // listen for unread count
             conn.on("UnreadCountUpdated", (res: any) => {
+                const isCurrentChatOpen =
+                    currentChat?.targetUser?.id === res.senderId &&
+                    res.receiverId === currentUser?.id;
+
+                if (isCurrentChatOpen) return;
+
                 setUsers(prev =>
                     prev.map(u =>
                         u.id === res.senderId
