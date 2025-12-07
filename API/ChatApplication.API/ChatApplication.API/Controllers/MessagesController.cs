@@ -63,6 +63,5 @@ namespace ChatApplication.API.Controllers
             await _messageRepository.MarkAsSeen(senderId, receiverId);
             return Ok("Messages marked as seen");
         }
-
     }
 }

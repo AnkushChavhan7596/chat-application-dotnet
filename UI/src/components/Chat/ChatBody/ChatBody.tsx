@@ -39,8 +39,8 @@ const ChatBody = () => {
         alert("Session expired, please login!");
     }
 
-    // handle message send
-    const onMessageSend = async (text: any) => {
+    // handle plane msg send
+    const handlePlaneMsgSend = async (text: any) => {
         const data: SendMessageRequest | any = {
             senderId: currentChat?.currentUser?.id,
             receiverId: currentChat?.targetUser?.id,
@@ -57,6 +57,38 @@ const ChatBody = () => {
                 handleUnauthorized();
             }
             console.error("Message send error:", error);
+        }
+    }
+    // handle msg with media send
+    const handleMsgSendWithMedia = async (msgData: any) => {
+        const data: any = {
+            senderId: currentChat?.currentUser?.id,
+            receiverId: currentChat?.targetUser?.id,
+            text: msgData?.text,
+            file: msgData?.file
+        };
+
+        try {
+            const sentMessage = await messageService.sendMessageWithMedia(data);
+            setMessages(prev => [...prev, sentMessage]);
+            console.log("Sent Message : ", sentMessage)
+        } catch (error: any) {
+            // If API returns 401 → user must login again
+            if (error.response?.status === 401) {
+                handleUnauthorized();
+            }
+            console.error("Message send error:", error);
+        }
+    }
+
+    // handle message send
+    const onMessageSend = async (msgData: any) => {
+        if (!msgData?.file) {
+            handlePlaneMsgSend(msgData?.text);
+        }
+
+        if (msgData?.file) {
+            handleMsgSendWithMedia(msgData);
         }
     }
 
@@ -191,7 +223,26 @@ const ChatBody = () => {
                                     currentChat?.currentUser?.id == msg.senderId ?
                                         <div className="sent" key={msg?.id}>
                                             <div className="msg">
-                                                <p className="text">{msg?.text}</p>
+                                                {msg?.mediaUrl && msg?.mediaType?.startsWith("image") && (
+                                                    <img src={msg?.mediaUrl} className="chat-image" />
+                                                )}
+
+                                                {msg?.mediaType?.startsWith("video") && (
+                                                    <video controls src={msg?.mediaUrl} />
+                                                )}
+
+                                                {msg?.mediaType?.startsWith("audio") && (
+                                                    <audio controls src={msg?.mediaUrl} />
+                                                )}
+
+                                                {msg?.mediaType === "application/pdf" && (
+                                                    <a href={msg?.mediaUrl} target="_blank" className="doc-media right">View Document</a>
+                                                )}
+
+                                                {
+                                                    msg?.text &&
+                                                    <p className="text">{msg?.text}</p>
+                                                }
                                                 <p className="time right">
                                                     {formatToLocalTime(msg?.sentAt)}
                                                     {msg?.isSeen && <span><img src={seenImage} alt="seen-image" className="msg-tick" /></span>}
@@ -202,7 +253,26 @@ const ChatBody = () => {
                                         :
                                         <div className="recieved" key={msg?.id}>
                                             <div className="msg">
-                                                <p className="text">{msg?.text}</p>
+                                                {msg?.mediaUrl && msg?.mediaType?.startsWith("image") && (
+                                                    <img src={msg?.mediaUrl} className="chat-image" />
+                                                )}
+
+                                                {msg?.mediaType?.startsWith("video") && (
+                                                    <video controls src={msg?.mediaUrl} />
+                                                )}
+
+                                                {msg?.mediaType?.startsWith("audio") && (
+                                                    <audio controls src={msg?.mediaUrl} />
+                                                )}
+
+                                                {msg?.mediaType === "application/pdf" && (
+                                                    <a href={msg?.mediaUrl} target="_blank" className="doc-media right">View Document</a>
+                                                )}
+
+                                                {
+                                                    msg?.text &&
+                                                    <p className="text">{msg?.text}</p>
+                                                }
                                                 <p className="time">{formatToLocalTime(msg?.sentAt)}</p>
                                             </div>
                                         </div>

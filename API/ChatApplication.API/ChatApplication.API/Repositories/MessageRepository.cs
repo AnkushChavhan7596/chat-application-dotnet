@@ -10,12 +10,17 @@ namespace ChatApplication.API.Repositories
     public class MessageRepository : IMessageRepository
     {
         private readonly ApplicationDbContext _db;
+        private readonly AuthDbContext _authDb;
         private readonly IHubContext<ChatHub> _hub;
 
-        public MessageRepository(ApplicationDbContext db, IHubContext<ChatHub> hub)
+        public MessageRepository(
+            ApplicationDbContext db, 
+            IHubContext<ChatHub> hub,
+            AuthDbContext authDb)
         {
             _db = db;
             _hub = hub;
+            _authDb = authDb;
         }
 
         // Get chat history between the users
@@ -75,7 +80,24 @@ namespace ChatApplication.API.Repositories
                     SentAt = message.SentAt
                 });
 
+            // send updated unread count
+            var unreadCount = await GetUnreadCount(message.ReceiverId);
+
+            await _hub.Clients.User(message.ReceiverId)
+                .SendAsync("UnreadCountUpdated", new
+                {
+                    unreadCount = unreadCount,
+                    senderId = message.SenderId
+                });
+
             return message;
+        }
+
+        private async Task<int> GetUnreadCount(string receiverId)
+        {
+            return await _db.Messages
+                .Where(m => m.ReceiverId == receiverId && !m.IsSeen)
+                .CountAsync();
         }
     }
 }

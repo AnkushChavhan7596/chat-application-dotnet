@@ -15,5 +15,7 @@ namespace ChatApplication.API.Models.Dto
         public string? Status { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public DateTime? LastSeen { get; set; }
+
+        public int? UnreadCount { get; set; } = 0;
     }
 }

@@ -13,5 +13,7 @@ namespace ChatApplication.API.Models.Domain
         public string? Status {  get; set; }
 
         public DateTime? LastSeen { get; set; } 
+
+        public int? UnreadCount { get; set; }
     }
 }

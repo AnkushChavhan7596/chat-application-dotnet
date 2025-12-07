@@ -7,7 +7,8 @@ export interface AuthUser {
   token: string;
   roles: string[],
   isOnline?: boolean,
-  lastSeen: string
+  lastSeen: string,
+  unreadCount: number
 }
 
 interface AuthState {

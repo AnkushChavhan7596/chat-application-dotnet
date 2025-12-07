@@ -53,6 +53,31 @@
     background-color: #e3e3e3; /* track color */
 }
 
+video{
+    height: 200px;
+    width: 100%;
+    border: 1px solid gray;
+}
+
+audio{
+    width: 100%;
+    border: 1px solid gray;
+}
+
+img{
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.doc-media{
+    width: 100%;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgba(128, 128, 128, 0.276);
+}
+
 .msg{
     margin: 5px;
     max-width: 60%;

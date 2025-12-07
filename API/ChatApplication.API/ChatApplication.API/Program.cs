@@ -42,6 +42,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUploadRepository, UploadRepository>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSignalR();
 
@@ -118,6 +120,8 @@ app.UseCors("AllowReactApp");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseStaticFiles(); // for media read
 
 app.UseMiddleware<ExceptionMiddleware>();
 

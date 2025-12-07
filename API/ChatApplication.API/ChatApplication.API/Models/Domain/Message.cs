@@ -9,8 +9,11 @@ namespace ChatApplication.API.Models.Domain
         public string SenderId { get; set; }
         public string ReceiverId { get; set; }
 
-        public string Text { get; set; }
+        public string? Text { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
+
+        public string? MediaUrl { get; set; }   
+        public string? MediaType { get; set; }  
 
         public bool IsSeen { get; set; } = false;
         public DateTime? SeenAt { get; set; }

@@ -10,7 +10,7 @@ import { saveCurrentChatToLocal } from "../../utils/chat";
 import { getConnection, startConnection } from "../../services/signalRService";
 import { messageService } from "../../services/messageService";
 
-const Sidebar = () => {
+const Sidebar = ({ loadUser }: any) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [users, setUsers] = useState<AuthUser[]>([]);
@@ -76,6 +76,7 @@ const Sidebar = () => {
 
         // set the unseen messages an seen 
         await markMessagesAsSeen(currentUser?.id, targetUser?.id);
+        loadUsers();
 
         // set current chat to local
         saveCurrentChatToLocal(currentChat);
@@ -116,6 +117,26 @@ const Sidebar = () => {
                 dispatch(setOnlineUserIds(userIds));
                 loadUsers(); // Refresh full user list if new user registered
             });
+
+            // listen for unread count
+            conn.on("UnreadCountUpdated", (res: any) => {
+                setUsers(prev =>
+                    prev.map(u =>
+                        u.id === res.senderId
+                            ? { ...u, unreadCount: res.unreadCount }
+                            : u
+                    )
+                );
+
+                setFilteredUsers(prev =>
+                    prev.map(u =>
+                        u.id === res.senderId
+                            ? { ...u, unreadCount: res.unreadCount }
+                            : u
+                    )
+                );
+            });
+
         };
 
         console.log("------- before call to init ---------");
@@ -127,7 +148,7 @@ const Sidebar = () => {
                 conn.off("OnlineUsersUpdated");
             }
         };
-    }, [currentUser]);
+    }, [currentUser, loadUser]);
 
 
     return (
@@ -151,13 +172,16 @@ const Sidebar = () => {
                     filteredUsers?.map(user => {
                         const isOnline = onlineUserIds?.includes(user?.id);
                         return (
-                            <div className="contact" key={user.id} onClick={() => handleChatSelection(user)}>
+                            <div className={`contact ${user?.unreadCount && 'unread'}`} key={user.id} onClick={() => handleChatSelection(user)}>
                                 <div className="profile">
                                     <img src="https://images.pexels.com/photos/3772510/pexels-photo-3772510.jpeg?auto=compress&cs=tinysrgb&w=600" alt="user" />
                                 </div>
                                 <div className="info">
-                                    <h2 className='username'>{user.displayName}</h2>
-                                    <p className={`last-msg ${isOnline && 'green-text'}`}>{isOnline ? 'online' : 'offline'}</p>
+                                    <div>
+                                        <h2 className='username'>{user.displayName}</h2>
+                                        <p className={`last-msg ${isOnline && 'green-text'}`}>{isOnline ? 'online' : 'offline'}</p>
+                                    </div>
+                                    {user?.unreadCount > 0 && <div className="unread-count"><span>{user?.unreadCount}</span></div>}
                                 </div>
                             </div>
                         )

@@ -96,6 +96,10 @@
     overflow-y: scroll;
 }
 
+.unread{
+    background-color: rgba(128, 128, 128, 0.116);
+}
+
 .contacts::-webkit-scrollbar {
     width: 5px;
     border-radius: 10px;
@@ -128,6 +132,30 @@
     height: 45px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+.info{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+}
+
+.unread-count{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    padding: 4px 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: rgb(43, 187, 43);
+}
+
+.unread-count span{
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .contact .info .username{
