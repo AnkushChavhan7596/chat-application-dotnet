@@ -29,6 +29,33 @@ namespace ChatApplication.API.Repositories
             return messages;
         }
 
+        // Mark as seen
+        public async Task MarkAsSeen(string senderId, string receiverId)
+        {
+            var messages = await _db.Messages
+                .Where(m => m.SenderId == receiverId &&
+                            m.ReceiverId == senderId &&
+                            !m.IsSeen)
+                .ToListAsync();
+
+            foreach (var msg in messages)
+            {
+                msg.IsSeen = true;
+                msg.SeenAt = DateTime.UtcNow;
+            }
+
+            if (messages.Any())
+            {
+                // Notify receiver in real time that messages has been read
+                await _hub.Clients.User(receiverId) 
+                    .SendAsync("MessageRead", new { 
+                        senderId = senderId, 
+                        receiverId = receiverId}
+                    );
+            }
+
+            await _db.SaveChangesAsync();
+        }
 
         // Send message
         public async Task<Message> SendMessageAsync(Message message)

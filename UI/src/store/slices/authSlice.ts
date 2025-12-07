@@ -6,7 +6,8 @@ export interface AuthUser {
   displayName: string;
   token: string;
   roles: string[],
-  isOnline?: boolean
+  isOnline?: boolean,
+  lastSeen: string
 }
 
 interface AuthState {

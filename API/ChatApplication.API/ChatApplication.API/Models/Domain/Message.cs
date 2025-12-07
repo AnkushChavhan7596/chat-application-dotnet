@@ -11,5 +11,8 @@ namespace ChatApplication.API.Models.Domain
 
         public string Text { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
+
+        public bool IsSeen { get; set; } = false;
+        public DateTime? SeenAt { get; set; }
     }
 }

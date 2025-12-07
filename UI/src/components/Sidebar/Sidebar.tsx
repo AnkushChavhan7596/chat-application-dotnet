@@ -3,11 +3,12 @@ import "./Sidebar.css"
 import { useNavigate } from 'react-router-dom';
 import { usersService } from "../../services/usersService";
 import { useAppSelector } from "../../store/hooks";
-import { connect, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { clearCurrentChat, setCurrentChat } from "../../store/slices/chatSlice";
 import { AuthUser, clearUser, setOnlineUserIds } from "../../store/slices/authSlice";
 import { saveCurrentChatToLocal } from "../../utils/chat";
 import { getConnection, startConnection } from "../../services/signalRService";
+import { messageService } from "../../services/messageService";
 
 const Sidebar = () => {
     const navigate = useNavigate();
@@ -17,12 +18,9 @@ const Sidebar = () => {
 
     const currentUser = useAppSelector((state) => state.auth.user);
     const onlineUserIds = useAppSelector((state) => state.auth.onlineUserIds);
-
     const currentChat = useAppSelector((state) => state.chat.currentChat);
 
     const isChatActive = currentChat && (currentChat?.targetUser && currentChat?.currentUser);
-
-    console.log("Current chat : ", currentChat)
 
     // handle search
     const handleSearch = (val: string) => {
@@ -55,12 +53,29 @@ const Sidebar = () => {
         navigate("/login", { replace: true });
     };
 
+    // handle message seen
+    const markMessagesAsSeen = async (senderId: any, recieverId: any) => {
+        try {
+            const msgs = await messageService.markMessagesAsRead(senderId, recieverId);
+            console.log(msgs)
+        } catch (error: any) {
+            // If API returns 401 → user must login again
+            if (error.response?.status === 401) {
+                handleLogout();
+            }
+            console.error("Message load error:", error);
+        }
+    }
+
     // handle chat selection
-    const handleChatSelection = (targetUser: AuthUser) => {
+    const handleChatSelection = async (targetUser: AuthUser) => {
         const currentChat = {
             currentUser: currentUser,
             targetUser: targetUser
         }
+
+        // set the unseen messages an seen 
+        await markMessagesAsSeen(currentUser?.id, targetUser?.id);
 
         // set current chat to local
         saveCurrentChatToLocal(currentChat);
@@ -82,7 +97,6 @@ const Sidebar = () => {
     //     loadUsers();
     // }, [currentUser]);
 
-    console.log("currentUser : ", currentUser)
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) return;
@@ -90,7 +104,7 @@ const Sidebar = () => {
         let conn: any;
 
         const init = async () => {
-            await startConnection();    // Start SignalR first
+            // await startConnection();    // Start SignalR first
             conn = getConnection();     // Now get connection
             if (!conn) return;
 
@@ -98,12 +112,13 @@ const Sidebar = () => {
 
             // Listen for online user updates
             conn.on("OnlineUsersUpdated", (userIds: string[]) => {
-                console.log("online user ids : ", userIds);
-
+                console.log("online user ids sidebar : ", userIds)
                 dispatch(setOnlineUserIds(userIds));
-                loadUsers(); // Refresh full user list
+                loadUsers(); // Refresh full user list if new user registered
             });
         };
+
+        console.log("------- before call to init ---------");
 
         init(); // call async function
 

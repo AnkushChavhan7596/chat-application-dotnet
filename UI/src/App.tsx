@@ -7,11 +7,12 @@ import ProtectedRoute from './helpers/ProtectedRoute';
 import PublicRoute from './helpers/PublicRoute';
 import { useEffect } from 'react';
 import { getLoggedInUser } from './utils/auth';
-import { setUser } from './store/slices/authSlice';
+import { setOnlineUserIds, setUser } from './store/slices/authSlice';
 import { useDispatch } from 'react-redux';
 import { setCurrentChat } from './store/slices/chatSlice';
 import { getCurrentChatFromLocal } from './utils/chat';
-import { startConnection } from './services/signalRService';
+import { getConnection, startConnection } from './services/signalRService';
+import { useAppSelector } from './store/hooks';
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
 
 function App() {
   const dispatch = useDispatch();
+  const currentUser = useAppSelector((state) => state.auth.user);
 
   const loadLoggedInUser = () => {
     // load user from local and set in store, (persistence)
@@ -54,7 +56,8 @@ function App() {
       email: loggedInUser?.email,
       displayName: loggedInUser?.displayName,
       roles: loggedInUser?.roles,
-      token: loggedInUser?.token
+      token: loggedInUser?.token,
+      lastSeen: loggedInUser?.lastSeen
     }));
 
     // load current chat from local and set in store (persistence)
@@ -64,14 +67,37 @@ function App() {
     dispatch(setCurrentChat(currentChat));
   }
 
+  // load logged in user
   useEffect(() => {
     loadLoggedInUser()
   }, []);
 
-  // // Initialize signalR
-  // useEffect(() => {
-  //   startConnection();
-  // }, []);
+  // Connecting to signalR
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    let conn: any;
+
+    const init = async () => {
+      await startConnection();    // Start SignalR first
+      conn = getConnection();     // Now get connection
+      if (!conn) return;
+
+      // Listen for online user updates
+      conn.on("OnlineUsersUpdated", (userIds: string[]) => {
+        dispatch(setOnlineUserIds(userIds));
+      });
+    };
+
+    init();
+
+    return () => {
+      if (conn) {
+        conn.off("OnlineUsersUpdated");
+      }
+    };
+  }, [currentUser]);
 
   return <RouterProvider router={router} />;
 }

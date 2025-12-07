@@ -7,5 +7,7 @@ namespace ChatApplication.API.Repositories
         public Task<Message> SendMessageAsync(Message message);
 
         public Task<List<Message>> GetChatHistory(string currentUserId, string targetUserId);
+
+        public Task MarkAsSeen(string currentUserId, string targetUserId);
     }
 }

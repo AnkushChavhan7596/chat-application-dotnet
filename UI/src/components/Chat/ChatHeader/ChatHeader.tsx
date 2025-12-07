@@ -3,6 +3,7 @@ import { useAppSelector } from "../../../store/hooks";
 import { clearCurrentChat } from "../../../store/slices/chatSlice";
 import { clearCurrentChatFromLocal } from "../../../utils/chat";
 import "./ChatHeader.css"
+import { formatLastSeen, formatToLocalTime } from "../../../utils/dateUtil";
 
 const ChatHeader = () => {
     const navigate = useNavigate();
@@ -29,7 +30,7 @@ const ChatHeader = () => {
                 </div>
                 <div>
                     <h2 className="name">{currentChat?.targetUser?.displayName}</h2>
-                    <p className="status">{isOnline ? 'online' : 'offline'}</p>
+                    <p className="status">{isOnline ? 'online' : `${formatLastSeen(currentChat?.targetUser?.lastSeen)}`}</p>
                 </div>
             </div>
 

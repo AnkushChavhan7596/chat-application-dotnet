@@ -69,11 +69,16 @@ export const messageService = {
   },
 
   // ✔️ Mark messages as read
-  markMessagesAsRead: async (senderId: string, receiverId: string) => {
-    await axios.put(
-      `${API_BASE_URL}/mark-read/${senderId}/${receiverId}`,
-      {},
-      getAuthHeaders()
-    );
+  markMessagesAsRead: async (senderId: string | undefined, receiverId: string | undefined) => {
+    try{
+       const response = await axios.put(
+      `${API_BASE_URL}/mark-as-seen/${senderId}/${receiverId}`,
+        {},
+        getAuthHeaders()
+      );
+      return response.data;
+    }catch(error: any){
+      throw error;
+    }
   }
 };

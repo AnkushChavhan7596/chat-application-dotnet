@@ -112,6 +112,7 @@ namespace ChatApplication.API.Controllers
                 Email = user.Email,
                 Roles = roles.ToList(),
                 Token = token,
+                LastSeen = user.LastSeen,
                 DisplayName = user.DisplayName
             });
         }

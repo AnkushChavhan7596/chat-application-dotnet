@@ -8,8 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearCurrentChat } from "../../../store/slices/chatSlice";
 import { clearUser } from "../../../store/slices/authSlice";
-import { formatToLocalTime } from "../../../utils/dateUtil";
+import { formatToLocalTime, groupMessagesByDay } from "../../../utils/dateUtil";
 import { getConnection, startConnection } from "../../../services/signalRService";
+import sentImage from "../../../assets/double-tick.png"
+import seenImage from "../../../assets/double-checked.png"
 
 const ChatBody = () => {
     const [messages, setMessages] = useState<MessageDto[]>([]);
@@ -18,6 +20,7 @@ const ChatBody = () => {
     const dispatch = useDispatch();
     const bottomRef = useRef<HTMLDivElement | null>(null);
     const [isTyping, setIsTyping] = useState<Boolean>(false);
+    const [groupedMessages, setGroupedMessages] = useState<any>({});
 
     // handle unauthorize or session expire
     const handleUnauthorized = () => {
@@ -71,20 +74,53 @@ const ChatBody = () => {
         }
     }
 
+    // handle logout
+    const handleLogout = () => {
+        // clean local storage
+        localStorage.removeItem("token");
+        localStorage.removeItem("currentChat")
+        localStorage.removeItem("loggedInUser")
+
+        // reseting the store current chat
+        dispatch(clearCurrentChat())
+
+        // reseting the store user
+        dispatch(clearUser());
+
+        // stop singnalR connection
+        getConnection()?.stop(); // this will update online users as well
+
+        navigate("/login", { replace: true });
+    };
+
+    // handle message seen
+    const markMessagesAsSeen = async (senderId: any, recieverId: any) => {
+        try {
+            const msgs = await messageService.markMessagesAsRead(senderId, recieverId);
+            console.log(msgs)
+        } catch (error: any) {
+            // If API returns 401 → user must login again
+            if (error.response?.status === 401) {
+                handleLogout();
+            }
+            console.error("Message load error:", error);
+        }
+    }
+
     useEffect(() => {
         loadMessagesBetweenUsers();
     }, [currentChat]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    }, [messages, groupedMessages]);
 
     // handle realtime messaging using signalR
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) return; // important
 
-        startConnection();
+        // startConnection();
 
         const conn = getConnection();
         // console.log("connection while recieving mesg : ", conn)
@@ -97,8 +133,24 @@ const ChatBody = () => {
                 msg.receiverId === currentChat?.targetUser?.id
             ) {
                 setMessages(prev => [...prev, msg]);
+
+                markMessagesAsSeen(currentChat?.currentUser?.id, currentChat?.targetUser?.id);
+
+                loadMessagesBetweenUsers();
             }
         });
+
+        // For message read
+        conn.on("MessageRead", (msg: any) => {
+            console.log("Message read event")
+            if (
+                msg.senderId === currentChat?.targetUser?.id ||
+                msg.receiverId === currentChat?.currentUser?.id
+            ) {
+                loadMessagesBetweenUsers();
+                console.log("Messages has been read in backend, got notification in realtime")
+            }
+        })
 
         // For Typing indicator - start
         conn.on("UserTyping", (data: any) => {
@@ -114,33 +166,52 @@ const ChatBody = () => {
         return () => {
             conn.off("ReceiveMessage");
             conn.off("UserTyping");
+            conn.off("MessageRead");
         };
     }, [currentChat]);
+
+    useEffect(() => {
+        setGroupedMessages(groupMessagesByDay(messages));
+    }, [messages]);
 
 
     return (
         <div className="chat-body">
 
             <div className="chats">
-                {
-                    messages?.map(msg => {
-                        return (
-                            currentChat?.currentUser?.id == msg.senderId ?
-                                <div className="sent" key={msg?.id}>
-                                    <div className="msg">
-                                        <p className="text">{msg?.text}</p>
-                                        <p className="time">{formatToLocalTime(msg?.sentAt)}</p>
-                                    </div>
-                                </div>
-                                :
-                                <div className="recieved" key={msg?.id}>
-                                    <div className="msg">
-                                        <p className="text">{msg?.text}</p>
-                                        <p className="time">{formatToLocalTime(msg?.sentAt)}</p>
-                                    </div>
-                                </div>
-                        )
-                    })
+                {Object.keys(groupedMessages)?.map((group, index) => (
+                    <div className="group" key={`group${index}`}>
+                        <div className="day-seperator">
+                            <span>{group}</span>
+                        </div>
+
+                        {
+                            groupedMessages[group]?.map((msg: any) => {
+                                return (
+                                    currentChat?.currentUser?.id == msg.senderId ?
+                                        <div className="sent" key={msg?.id}>
+                                            <div className="msg">
+                                                <p className="text">{msg?.text}</p>
+                                                <p className="time right">
+                                                    {formatToLocalTime(msg?.sentAt)}
+                                                    {msg?.isSeen && <span><img src={seenImage} alt="seen-image" className="msg-tick" /></span>}
+                                                    {!msg?.isSeen && <span><img src={sentImage} alt="sent-image" className="msg-tick" /></span>}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        :
+                                        <div className="recieved" key={msg?.id}>
+                                            <div className="msg">
+                                                <p className="text">{msg?.text}</p>
+                                                <p className="time">{formatToLocalTime(msg?.sentAt)}</p>
+                                            </div>
+                                        </div>
+                                )
+                            })
+                        }
+                    </div>
+                ))
+
                 }
 
                 {isTyping && <p className="typing-indicator">Typing...</p>}

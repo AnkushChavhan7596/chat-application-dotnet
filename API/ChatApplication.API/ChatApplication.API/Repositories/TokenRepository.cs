@@ -35,7 +35,7 @@ namespace ChatApplication.API.Repositories
                 issuer: configuration["Jwt:Issuer"],
                 audience: configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddDays(30),
                 signingCredentials: credentials
             );
 

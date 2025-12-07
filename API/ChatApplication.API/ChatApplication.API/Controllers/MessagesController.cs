@@ -55,5 +55,14 @@ namespace ChatApplication.API.Controllers
 
             return Ok(messages);
         }
+
+        // POST: api/messages/mark-as-seen
+        [HttpPut("mark-as-seen/{senderId}/{receiverId}")]
+        public async Task<IActionResult> MarkMessagesAsSeen([FromRoute] string senderId, [FromRoute] string receiverId)
+        {
+            await _messageRepository.MarkAsSeen(senderId, receiverId);
+            return Ok("Messages marked as seen");
+        }
+
     }
 }

@@ -28,8 +28,18 @@ export const startConnection = async () => {
     try {
         await connection.start();
         console.log("SignalR Connected");
-    } catch (err) {
+    } catch (err: any) {
         console.error("Connection failed:", err);
+
+        if (
+            err?.message?.includes("401") ||
+            err?.message?.includes("Unauthorized")
+        ) {
+            // clean local storage
+            localStorage.removeItem("token");
+            localStorage.removeItem("currentChat")
+            localStorage.removeItem("loggedInUser")
+        }
         setTimeout(startConnection, 3000);
     }
 };
